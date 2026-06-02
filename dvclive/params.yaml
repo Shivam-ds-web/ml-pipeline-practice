@@ -5,4 +5,3 @@ featire_engineering:
 model_building:
   n_estimators: 400
   random_state: 45
-  
