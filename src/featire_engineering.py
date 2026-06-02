@@ -3,6 +3,7 @@ import numpy as np
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
 import os
+import yaml
 import logging
 
 log_dir = 'logs'
@@ -24,6 +25,15 @@ log_file_handler.setFormatter(formatter)
 
 logger.addHandler(console_handler)
 logger.addHandler(log_file_handler)
+
+def load_params(params_path):
+    try:
+        with open(params_path) as file:
+            params = yaml.safe_load(file)
+        return params
+        logger.debug("Retrieved the parameters sucessfully")
+    except Exception as e:
+        logger.error("Error occurred while retrieving the parameters",e)
 
 def load_data(data_path: str) -> pd.DataFrame:
     try:
@@ -78,8 +88,9 @@ def main():
     try:
         train = load_data("data/interim/train_processed_data.csv") 
         test = load_data("data/interim/test_processed_data.csv")
-        
-        train_tfidf, test_tfidf = apply_tfidf(train, test, max_features=50)
+        params = load_params('params.yaml')
+        max_features = params['featire_engineering']['max_features']
+        train_tfidf, test_tfidf = apply_tfidf(train, test, max_features)
         out_dir = os.path.join("data", "engineered")
         save_data(train_tfidf, os.path.join(out_dir, "train_tfidf.csv"))
         save_data(test_tfidf, os.path.join(out_dir, "test_tfidf.csv"))

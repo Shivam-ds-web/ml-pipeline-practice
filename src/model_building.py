@@ -4,7 +4,7 @@ from sklearn.ensemble import RandomForestClassifier
 import logging 
 import os 
 import numpy as np
-
+import yaml
 
 logger = logging.getLogger('model_building')
 logger.setLevel("DEBUG")
@@ -25,6 +25,14 @@ log_file_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 logger.addHandler(log_file_handler)
 
+def load_params(params_path):
+    try:
+        with open(params_path) as file:
+            params = yaml.safe_load(file)
+        return params
+        logger.debug("Retrieved parameters sucessfully from params file")
+    except Exception as e:
+        logger.error("Error occurred while retrieving params", e)
 def load_data(file_path: str) -> pd.DataFrame:
     """
     Load data from a CSV file.
@@ -101,7 +109,7 @@ def main():
         train_data = load_data('./data/engineered/train_tfidf.csv')
         X_train = train_data.iloc[:, :-1].values
         y_train = train_data.iloc[:, -1].values
-        params = {'n_estimators':500,'random_state':42}
+        params = load_params('params.yaml')['model_building']
         clf = train_model(X_train, y_train,params)
         
         model_save_path = 'models/model.pkl'

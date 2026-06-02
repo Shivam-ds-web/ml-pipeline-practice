@@ -1,6 +1,7 @@
 import logging
 import os
 import pandas as pd
+import yaml
 from sklearn.model_selection import train_test_split
 
 log_dirs = 'logs'
@@ -22,6 +23,16 @@ log_file_handler.setFormatter(formatter)
 
 logger.addHandler(console_handler)
 logger.addHandler(log_file_handler)
+
+def load_params(params_path):
+    try:
+        with open(params_path,'r') as file:
+            params = yaml.safe_load(file)
+        return params
+        logger.debug("Parameters retrieved from file",params_path)
+    except Exception as e:
+        logger.error("Error  occurred during retrieving parameters",e)
+        raise
 
 def load_data(data_url : str) -> pd.DataFrame:
     try:
@@ -65,7 +76,8 @@ def save__data(train_data: pd.DataFrame, test_data: pd.DataFrame, data_path: str
 
 def main():
     try:
-        test_size = 0.2
+        params = load_params('params.yaml')
+        test_size = params['data_ingestion']['test_size']
         data_url = 'https://raw.githubusercontent.com/vikashishere/Datasets/main/spam.csv'
         
         df = load_data(data_url)
